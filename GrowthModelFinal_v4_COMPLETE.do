@@ -187,8 +187,6 @@ else {
     gen ln_school = .
 }
 
-save "`datadir'/mrw_analysis_data.dta", replace
-
 *--------------------------------------------------------------------------
 * 7. SAMPLE DUMMIES FROM THE MRW (1992) APPENDIX
 *    Codes: N=non-oil, I=intermediate, O=OECD.
@@ -250,6 +248,9 @@ foreach g in intermediate oecd {
     quietly count if `g' == 1 & s_aug == 1
     display "  `g' Tables II/V:      " r(N)
 }
+
+* SAVE DATA WITH SAMPLE DUMMIES BEFORE REGRESSIONS
+save "`datadir'/mrw_analysis_data.dta", replace
 
 *--------------------------------------------------------------------------
 * 9. REGRESSIONS WITH FULL POST-ESTIMATION
@@ -406,14 +407,13 @@ use `postests', clear
 list, noobs
 save "`datadir'/post_estimation_results.dta", replace
 
-* Return to main dataset for table export
+* ============ RETURN TO MAIN DATA FOR TABLE EXPORT ============
 use "`datadir'/mrw_analysis_data.dta", clear
 
 *--------------------------------------------------------------------------
-* 10. RE-RUN REGRESSIONS FOR ESTTAB EXPORT (needed to create estores again)
+* 10. EXPORT TABLES TO RTF (re-run regressions for estores)
 *--------------------------------------------------------------------------
 
-* Re-create all estimation stores for tables
 foreach grp in intermediate oecd {
     * Table I
     reg ln_y85 ln_s_ki ln_ngd if `grp' == 1 & s_base == 1, robust
